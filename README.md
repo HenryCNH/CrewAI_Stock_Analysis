@@ -92,29 +92,6 @@ Full trace mode can be noisy and may include prompts or model output. Do not
 share its files publicly without reviewing them, and never place API keys in
 agent/task YAML files or the preference file.
 
-### Where To Learn In The Code
-
-- `src/scratch_project/config/agents.yaml`: each agent's role, goal, and
-	backstory. These guide how an agent approaches its task.
-- `src/scratch_project/config/tasks.yaml`: each assignment, expected output,
-	assigned agent, and the `{ticker}` / `{user_preferences}` placeholders.
-- `src/scratch_project/crew.py`: the decorators that load YAML definitions and
-	assemble agents and tasks into a sequential `Crew`.
-- `src/scratch_project/tools/custom_tool.py`: the Python function exposed to an
-	agent as the `Get Stock Data` tool.
-- `src/scratch_project/main.py`: CLI parsing, input preparation, `kickoff()`,
-	report persistence, and trace artifacts.
-
-Try one change per run, then compare the matching task-output files:
-
-1. Change the collector's goal and observe whether it still calls the tool as
-	 instructed by `collect_task`.
-2. Change the summarizer's requested bullet count and inspect its task output.
-3. Change `knowledge/user_preference.txt` and compare only the final writer
-	 output.
-4. Run once with `--trace summary` and once with `--trace full` to separate
-	 application logs from CrewAI's internal execution stream.
-
 ## What the report uses
 
 - Latest available close, daily change, and five-session return
@@ -158,73 +135,6 @@ and the educational disclaimer remain.
 - `knowledge/user_preference.txt`: preferences passed to the brief writer
 - `tests/`: offline tests that mock external services
 
-## Tests And Packages
-
-```powershell
-python -m pytest
-python -m pip install build
-python -m build
-python scripts/check_publication.py --archives dist
-```
-
-Tests use fake market/model responses and temporary paths, not your actual
-credentials or preferences. The archive check verifies that required agent/task
-YAML files are included and private paths are absent. GitHub Actions tests
-Python 3.10-3.13 on Linux and Python 3.12 on Windows, checks installed-wheel
-resources and CLI help, and scans publication paths and secrets. CI does not
-run stock analyses, receive provider credentials, or upload reports/traces.
-
-## Publish To GitHub Safely
-
-The supplied ignore rules exclude local environment variants, private knowledge,
-reports, traces, logs, credential containers, caches, and backups. Only the
-reviewed `.env.example` and generic preference example should be published.
-Ignore rules do not remove tracked files or history, and `git add -f` bypasses
-them. The publication checker rejects private and unreviewed indexed paths;
-its allowlist must be reviewed when intentionally adding a new public root.
-
-1. Keep this project in its own repository. If it is not a Git repository yet,
-	initialize one locally only when ready; no repository or remote is created
-	by the application.
-2. Review public source/configuration files and examples before staging. Do
-	not include private data in source comments, examples, screenshots, issue
-	reports, commit messages, or copied outputs. Console output is not redacted.
-3. Stage the reviewed files, then check the candidate index:
-
-	```powershell
-	git diff --cached --name-status
-	python scripts/check_publication.py
-	```
-
-4. Install the official Gitleaks CLI (CI pins version 8.30.1 and verifies its
-	release checksum). Export the staged contents outside the repository and
-	scan them before committing or pushing:
-
-	```powershell
-	$snapshot = Join-Path ([System.IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString())
-	python scripts/check_publication.py --staged-snapshot $snapshot
-	gitleaks dir --redact --no-banner $snapshot
-	```
-
-	The export uses the index, not potentially different working-tree contents.
-	Without a Git repository, `--snapshot` can export a source-review candidate,
-	but that does not verify what will eventually be staged or committed.
-
-5. After making reviewed local commits, scan all reachable history before the
-	first push, and repeat before later pushes:
-
-	```powershell
-	gitleaks git --redact --no-banner --log-opts="--all" .
-	```
-
-6. If private files or credentials were committed, do not push. Remove private
-	files from the index without deleting your local copies, rotate exposed
-	credentials where applicable, and plan history cleanup separately. Review
-	branches, tags, commit messages, and any prior publication too.
-7. Enable GitHub secret scanning and push protection where available. CI is
-	a secondary check after upload, not a substitute for the local pre-push
-	checks. Do not add provider secrets, scheduled analysis jobs, or trace/report
-	uploads to this test-only workflow.
 
 No scanner can guarantee detection of every secret or personal detail. Review
 the exact publication contents before choosing repository visibility. Keep
