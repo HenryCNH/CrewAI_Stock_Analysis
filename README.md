@@ -32,44 +32,6 @@ stock-brief SNDK
 
 The final brief is printed to the terminal and saved as a timestamped Markdown file under `reports/`.
 
-## Learn From A Run
-
-This project uses CrewAI's classic Python and YAML layout. Run it with the
-default full trace to see CrewAI's live agent/tool messages and save a local
-record of the run:
-
-```powershell
-stock-brief NVDA --trace full
-```
-
-The final brief stays on standard output. Learning logs are written to standard
-error and to a timestamped folder under `traces/`. Trace files are intended
-for local use and can include preferences, market data, prompts, and model
-responses. The supplied ignore rules exclude them, but files already tracked
-by Git require a separate index and history review.
-
-```mermaid
-flowchart LR
-		CLI[stock-brief NVDA] --> Main[main.py]
-		Main --> Inputs[ticker and user preferences]
-		Inputs --> Crew[ScratchProject crew]
-		Crew --> Collect[1. Collector]
-		Collect --> Tool[Get Stock Data tool]
-		Tool --> Data[Yahoo Finance data and Python metrics]
-		Data --> Summary[2. News Summarizer]
-		Summary --> Risk[3. Risk Analyst]
-		Risk --> Writer[4. Daily Brief Writer]
-		Writer --> Output[CrewOutput]
-		Output --> Report[reports/TICKER_timestamp.md]
-		Output --> Trace[traces/TICKER_timestamp]
-```
-
-The crew uses `Process.sequential`, so tasks run in the order shown. In this
-mode, CrewAI gives each later task the outputs from earlier tasks as context.
-The collector is the only agent with the `Get Stock Data` tool. That tool calls
-Yahoo Finance and calculates repeatable metrics in Python; the other agents
-interpret only the information handed to them.
-
 ### Trace Modes
 
 | Command option | What you see | Files saved |
