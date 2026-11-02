@@ -1,0 +1,11 @@
+prune knowledge
+prune reports
+prune traces
+prune .venv
+include .env.example
+include .gitignore
+include .github/workflows/ci.yml
+include knowledge/user_preference.example.txt
+include scripts/check_publication.py
+recursive-include src/scratch_project/config *.yaml
+global-exclude *.py[cod] *.log *.pem *.key *.p12 *.pfx *.bak *.backup *.orig *.tmp
